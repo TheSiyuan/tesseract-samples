@@ -7,7 +7,8 @@ namespace Tesseract.ConsoleDemo
     {
         public static void Main(string[] args)
         {
-            var testImagePath = "./phototest.tif";
+            //var testImagePath = "./phototest.tif";
+            var testImagePath = "C:\\Users\\swei\\Downloads\\3.jpg";
             if (args.Length > 0)
             {
                 testImagePath = args[0];
