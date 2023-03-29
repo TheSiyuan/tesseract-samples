@@ -127,5 +127,20 @@ namespace Tesseract.ConsoleDemo
 
             return result;
         }
+        private static Mat OpenCVprocessing_AdaptiveThreshhold(string filepath)
+        {
+            Mat img = Cv2.ImRead(filepath);
+            Mat bin = new Mat();
+            Cv2.CvtColor(img, bin, ColorConversionCodes.BGR2GRAY);
+            Cv2.AdaptiveThreshold(bin, bin, 255, adaptiveMethod: AdaptiveThresholdTypes.GaussianC, thresholdType: ThresholdTypes.Binary, blockSize: 55, c: 11);
+            
+            return bin;
+        }
+        private static Mat OpenCVprocessing_noprocessing(string filepath)
+        {
+            Mat img = Cv2.ImRead(filepath);
+            
+            return img;
+        }
     }
 }
