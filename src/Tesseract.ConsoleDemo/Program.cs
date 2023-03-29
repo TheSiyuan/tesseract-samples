@@ -14,7 +14,7 @@ namespace Tesseract.ConsoleDemo
         public static void Main(string[] args)
         {
             //var testImagePath = "./phototest.tif";
-            var testImagePath = "C:\\Users\\swei\\Downloads\\3.jpg";
+            var testImagePath = "C:\\Users\\swei\\Downloads\\receipt\\3.jpg";
             if (args.Length > 0)
             {
                 testImagePath = args[0];
@@ -103,20 +103,31 @@ namespace Tesseract.ConsoleDemo
             {
                 Console.WriteLine("Unable to extract totalCost from the receipt. Please try again.");
             }
-            var datePattern = @"(?:date)?\s*:??\s*(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])";
-            var dateMatch = Regex.Match(text, datePattern, RegexOptions.IgnoreCase);
+            var datePattern1 = @"(?:date)?\s*:??\s*(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])"; // yyyy/mm/dd
+            var datePattern2 = @"(?:date)?\s*:??\s*(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.]((19|20)\d\d)"; // mm/dd/yyyy
+            var datePattern3 = @"(?:date)?\s*:??\s*(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](\d\d)"; // mm/dd/yy
+            var datePattern4 = @"(?:date)?\s*:??\s*(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.]((19|20)\d\d)"; // dd/mm/yyyy
 
-            if (dateMatch.Success)
-            {
-                DateTime.TryParse(dateMatch.Value.ToString(), out DateTime date);
+            List<string> datePatterns = new List<string>()
+            { datePattern1, datePattern2, datePattern3, datePattern4 };
 
-                Console.WriteLine("match found");
-                Console.WriteLine(date.ToShortDateString());
-            }
-            else
+            foreach( var datePattern in datePatterns)
             {
-                Console.WriteLine("Unable to extract date from the receipt. Please try again.");
+                var dateMatch = Regex.Match(text, datePattern, RegexOptions.IgnoreCase);
+                if (dateMatch.Success)
+                {
+                    DateTime.TryParse(dateMatch.Value.ToString(), out DateTime date);
+
+                    Console.WriteLine("match found");
+                    Console.WriteLine(date.ToShortDateString());
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Unable to extract date from the receipt. trying next method.");
+                }
             }
+            
             var tipPattern = @"(?i)tip.*:??\$?\s*(\d+\.?\s?\d{2})";
             var tipMatch = Regex.Match(text, tipPattern, RegexOptions.IgnoreCase);
             if (tipMatch.Success)
