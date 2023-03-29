@@ -14,7 +14,7 @@ namespace Tesseract.ConsoleDemo
         public static void Main(string[] args)
         {
             //var testImagePath = "./phototest.tif";
-            var testImagePath = "C:\\Users\\swei\\Downloads\\receipt\\3.jpg";
+            var testImagePath = "C:\\Users\\swei\\Downloads\\receipt\\5.jpg";
             if (args.Length > 0)
             {
                 testImagePath = args[0];
@@ -90,19 +90,34 @@ namespace Tesseract.ConsoleDemo
                 Console.WriteLine("Failed to read anything from the photo");
                 return;
             }
-            var totalCostPattern = @"(?i)total\s*(?:cost)?.*:??\s*\$?\s*(\d+\.?\s?\d{2})\n";
-            var totalCostMatch = Regex.Match(text, totalCostPattern, RegexOptions.IgnoreCase);
-            if (totalCostMatch.Success)
+            var totalCostPattern1 = @"(?i)total\s*(?:cost)?.*:??\s*\$?\s*(\d+\.?\s?\d{2})\n";
+            var totalCostPattern2 = @"((?i)total\s*(?:cost)?.*:??.*\$?\s*(\d+\.?\s?\d{2}))\n";
+            var totalCostPattern3 = @"(?i)ount\s*(?:cost)?.*:??\s*\$?\s*(\d+\.?\s?\d{2})\n";
+
+            List<string> totalCostPatterns = new List<string>()
             {
-                var totalCost = ProcessString(totalCostMatch.Value);
-                //decimal.TryParse(totalCostMatch.Groups[1].Value.Replace(" ", "."), out decimal totalCost);
-                Console.WriteLine("match found");
-                Console.WriteLine(totalCost);
-            }
-            else
+                totalCostPattern1, totalCostPattern2, totalCostPattern3
+            };
+            foreach (var pattern in totalCostPatterns)
             {
-                Console.WriteLine("Unable to extract totalCost from the receipt. Please try again.");
+                var totalCostMatches = Regex.Matches(text, totalCostPattern1, RegexOptions.IgnoreCase);
+                if (totalCostMatches.Count >0)
+                {
+                    foreach (var totalCostMatch in totalCostMatches)
+                    {
+                        var totalCost = ProcessString(totalCostMatch.ToString());
+                        //decimal.TryParse(totalCostMatch.Groups[1].Value.Replace(" ", "."), out decimal totalCost);
+                        Console.WriteLine("match found");
+                        Console.WriteLine(totalCost);
+                    }
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Unable to extract totalCost from the receipt. Please try again.");
+                }
             }
+            
             var datePattern1 = @"(?:date)?\s*:??\s*(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])"; // yyyy/mm/dd
             var datePattern2 = @"(?:date)?\s*:??\s*(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.]((19|20)\d\d)"; // mm/dd/yyyy
             var datePattern3 = @"(?:date)?\s*:??\s*(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](\d\d)"; // mm/dd/yy
